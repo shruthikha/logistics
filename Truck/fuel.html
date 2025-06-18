@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearby Fuel Stations</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f5f5dc; /* Crème */
+            color: #004d40; /* Dark Teal */
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #008080; /* Teal */
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #ff6600; /* Orange */
+            transform: scale(1.05);
+        }
+
+        .container {
+            background: #008080; /* Teal */
+            padding: 25px;
+            border-radius: 12px;
+            width: 50%;
+            margin: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+            transition: transform 0.3s;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #008080; /* Teal */
+            font-weight: 600;
+            margin-bottom: 10px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        h3 {
+            font-size: 20px;
+            border-bottom: 3px solid #ff6600; /* Orange */
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            color: #f5f5dc; /* Crème */
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            margin: 6px 0;
+            border-radius: 8px;
+            color: #f5f5dc; /* Crème */
+            font-weight: 500;
+            transition: all 0.3s ease-in-out;
+        }
+
+        li:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back Button -->
+    <button class="back-btn" onclick="window.location.href='index.html'">⬅ Back</button>
+
+    <h2>📍 Fetching your location...</h2>
+    <div id="places"></div>
+
+    <script>
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of Earth in km
+            const dLat = (lat2 - lat1) * (Math.PI / 180);
+            const dLon = (lon2 - lon1) * (Math.PI / 180);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return (R * c).toFixed(2);
+        }
+    
+        async function getFuelStations(lat, lon) {
+            const query = `[out:json]; node["amenity"="fuel"](around:5000, ${lat}, ${lon}); out body;`;
+            const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+    
+            try {
+                const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+                const data = await response.json();
+                getUserLocation(lat, lon, data.elements);
+            } catch (error) {
+                console.error("Error fetching fuel stations:", error);
+                document.getElementById("places").innerHTML = "⚠️ Unable to fetch fuel station data.";
+            }
+        }
+    
+        async function getUserLocation(lat, lon, stations) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            try {
+                const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+                const data = await response.json();
+                displayStations(data.display_name || "Unknown Location", stations, lat, lon);
+            } catch (error) {
+                console.error("Error getting location:", error);
+                displayStations("Unknown Location", stations, lat, lon);
+            }
+        }
+    
+        function displayStations(location, stations, userLat, userLon) {
+            // ✅ Step 1: Calculate distances and store in an array
+            let stationDistances = stations.map(f => ({
+                name: f.tags.name || "Unnamed",
+                distance: calculateDistance(userLat, userLon, f.lat, f.lon)
+            }));
+    
+            // ✅ Step 2: Sort stations by distance (ascending)
+            stationDistances.sort((a, b) => a.distance - b.distance);
+    
+            // ✅ Step 3: Generate sorted HTML list
+            let fuelList = stationDistances.map(f => `<li>⛽ ${f.name} - ${f.distance} km</li>`).join("") || "<li>No fuel stations found</li>";
+    
+            document.getElementById("places").innerHTML = `
+                <h2>📍 Your Location: ${location}</h2>
+                <div class="container">
+                    <h3>⛽ Nearby Fuel Stations (Sorted by Distance)</h3>
+                    <ul>${fuelList}</ul>
+                </div>
+            `;
+        }
+    
+        // Get user's current location
+        navigator.geolocation.getCurrentPosition(
+            position => getFuelStations(position.coords.latitude, position.coords.longitude),
+            () => document.getElementById("places").innerHTML = "⚠️ Location access denied!"
+        );
+    </script>
+
+</body>
+</html>

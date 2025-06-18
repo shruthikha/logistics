@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚛 AQI Tracker - Futuristic</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, #232526, #414345);
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+            transition: background 0.5s, color 0.5s;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background: linear-gradient(to right, #000000, #434343);
+            color: #ffffff;
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #ff6600;
+            transform: scale(1.1);
+        }
+
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .dark-mode-toggle:hover {
+            background: #ff6600;
+            transform: scale(1.1);
+        }
+
+        /* Main Container */
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 15px;
+            width: 70%;
+            margin: auto;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, background 0.3s;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        p {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* AQI Box */
+        .aqi-box {
+            margin-top: 20px;
+            padding: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            border-radius: 12px;
+            transition: all 0.4s ease-in-out;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            animation: bounce 2s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+
+        .advisory {
+            margin-top: 15px;
+            padding: 15px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Truck Image */
+        .truck-image {
+            width: 100%;
+            max-width: 400px;
+            margin-top: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        /* Toggle Button */
+        .toggle-view {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background: #ff6600;
+            color: white;
+            border-radius: 10px;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .toggle-view:hover {
+            background: #ff3300;
+            transform: scale(1.1);
+        }
+
+    </style>
+</head>
+<body>
+     <!-- Back Button -->
+     <button class="back-btn" onclick="window.location.href='index.html'">⬅ Back</button>
+
+     <!-- Dark Mode Toggle -->
+     <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+
+    <div class="container">
+        <h2>🚛 Truck Location & 🌎 Air Quality Index (AQI)</h2>
+        <p id="location">📍 Fetching location...</p>
+        <img src="https://i.imgur.com/VJxZl4B.png" alt="Truck" class="truck-image">
+        <div id="aqi" class="aqi-box">💨 Loading AQI...</div>
+        <div id="advisory" class="advisory">🩺 Health advisory will appear here...</div>
+        
+        <!-- Toggle Button -->
+        <button class="toggle-view" onclick="toggleView()">🌍 Switch to Map View</button>
+    </div>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(successCallback, errorCallback, { enableHighAccuracy: true });
+            } else {
+                document.getElementById("location").innerText = "Geolocation not supported";
+            }
+        }
+
+        function successCallback(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            getAddress(lat, lon);
+            getAQI(lat, lon);
+        }
+
+        function errorCallback(error) {
+            document.getElementById("location").innerText = "⚠ Unable to retrieve location";
+        }
+
+        function getAddress(lat, lon) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("location").innerText = `📍 Location: ${data.display_name}`;
+                });
+        }
+
+        function getAQI(lat, lon) {
+            let apiKey = "f654ff3176837b082333d907920d9e22";
+            fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    let aqi = data.list[0].main.aqi;
+                    document.getElementById("aqi").innerText = `AQI: ${aqi} 🚦`;
+                });
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function toggleView() {
+            alert("🌍 Map View Coming Soon!");
+        }
+
+        getLocation();
+    </script>
+</body>
+</html>

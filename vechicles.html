@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle FC Checker</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #121212; 
+            color: white; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #cc5200;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        h1 { color: #00b5ad; }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        button { 
+            background: #00b5ad; 
+            color: white; 
+            padding: 10px 15px; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            font-size: 16px; 
+        }
+
+        button:hover {
+            background: #00897b;
+        }
+
+        .card { 
+            background: #2a2a2a; 
+            padding: 20px; 
+            margin-top: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); 
+        }
+
+        .alert {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .valid { color: #00ff00; }   /* Green */
+        .warning { color: #ffcc00; } /* Yellow */
+        .expired { color: #ff5733; } /* Red */
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🚛 Vehicle FC Checker</h1>
+        <input type="text" id="vehicle-number" placeholder="Enter Vehicle Number (e.g., TX98)">
+        <button onclick="checkFCStatus()">Check FC</button>
+
+        <div class="card" id="fc-result" style="display: none;">
+            <h3>🚗 Vehicle Details</h3>
+            <p><b>Vehicle Number:</b> <span id="display-number"></span></p>
+            <p><b>FC Expiry:</b> <span id="fc-expiry"></span></p>
+            <p class="alert" id="fc-alert"></p>
+        </div>
+
+        <button onclick="window.location.href='index1.html'">⬅ Back to Dashboard</button>
+    </div>
+
+    <script>
+        // Sample Vehicle Database with FC Expiry Dates
+        const vehicles = {
+            "TX98": "2025-12-01",
+            "BX76": "2024-06-10",
+            "MN45": "2026-08-15",
+            "ZX23": "2023-11-20", // Expired
+            "HL90": "2024-09-05"
+        };
+
+        function checkFCStatus() {
+            const vehicleNum = document.getElementById("vehicle-number").value.trim().toUpperCase();
+            const fcResult = document.getElementById("fc-result");
+            const fcAlert = document.getElementById("fc-alert");
+            const fcExpiryField = document.getElementById("fc-expiry");
+            const displayNumber = document.getElementById("display-number");
+
+            if (!vehicleNum || !vehicles[vehicleNum]) {
+                alert("⚠️ Vehicle not found! Please enter a valid number.");
+                return;
+            }
+
+            const expiryDate = new Date(vehicles[vehicleNum]);
+            const today = new Date();
+            const monthsLeft = (expiryDate.getFullYear() - today.getFullYear()) * 12 + (expiryDate.getMonth() - today.getMonth());
+
+            // Display vehicle details
+            displayNumber.innerText = vehicleNum;
+            fcExpiryField.innerText = expiryDate.toLocaleDateString();
+
+            if (monthsLeft < 0) {
+                fcAlert.innerText = "❌ FC Expired! Renew Immediately!";
+                fcAlert.className = "alert expired";
+                alert("⚠️ Warning: The FC for vehicle " + vehicleNum + " has expired! Renew now.");
+            } else if (monthsLeft <= 3) {
+                fcAlert.innerText = "⚠️ FC is expiring soon! Renew it within " + monthsLeft + " months.";
+                fcAlert.className = "alert warning";
+            } else {
+                fcAlert.innerText = "✅ FC is valid.";
+                fcAlert.className = "alert valid";
+            }
+
+            // Show result
+            fcResult.style.display = "block";
+        }
+    </script>
+
+</body>
+</html>

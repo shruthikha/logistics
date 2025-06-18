@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Calendar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #f5f5dc, #008b85);
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: #008b85;
+            color: white;
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .back-button:hover {
+            background: #006d6a;
+            transform: scale(1.05);
+        }
+
+        .calendar-container {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            width: 320px;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .calendar-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #006d6a;
+            margin-bottom: 10px;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            padding: 5px;
+        }
+
+        .calendar div {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #e0e0c7;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .calendar div:hover {
+            background: #008b85;
+            color: white;
+        }
+
+        .completed {
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .ongoing {
+            border: 2px solid #FF6600;
+            color: #FF6600;
+        }
+
+        .upcoming {
+            border: 2px solid #2196F3;
+            color: #2196F3;
+        }
+
+        .project-details {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .add-project-btn {
+            margin-top: 15px;
+            padding: 10px;
+            background: #008b85;
+            border: none;
+            color: white;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .add-project-btn:hover {
+            background: #006d6a;
+            transform: scale(1.05);
+        }
+
+        .controls {
+            margin-bottom: 10px;
+        }
+
+        select {
+            padding: 5px;
+            font-size: 14px;
+            background: #e0e0c7;
+            color: #006d6a;
+            border-radius: 5px;
+            border: 1px solid #006d6a;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="back-button" onclick="goBack()">⬅ Back</button>
+
+    <h1 style="color: #006d6a;">Project Calendar</h1>
+
+    <div class="controls">
+        <select id="month-select" onchange="generateCalendar()">
+            <option value="0">January</option>
+            <option value="1">February</option>
+            <option value="2">March</option>
+            <option value="3">April</option>
+            <option value="4">May</option>
+            <option value="5">June</option>
+            <option value="6">July</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">October</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
+        </select>
+
+        <select id="year-select" onchange="generateCalendar()">
+        </select>
+    </div>
+
+    <div class="calendar-container">
+        <div class="calendar-title" id="calendar-title"></div>
+        <div class="calendar" id="calendar-grid"></div>
+    </div>
+
+    <div class="project-details" id="details">
+        <h2 style="color: #006d6a;">📌 Project Details</h2>
+        <p id="project-info">Click on a highlighted date to view details.</p>
+    </div>
+
+    <button class="add-project-btn" onclick="addProject()">➕ Add Project</button>
+
+    <script>
+        function goBack() {
+            window.location.href = "index1.html";
+        }
+
+        let projects = JSON.parse(localStorage.getItem("projects")) || {}; // Load projects from local storage
+
+        function generateCalendar() {
+            const month = parseInt(document.getElementById("month-select").value);
+            const year = parseInt(document.getElementById("year-select").value);
+            const calendarGrid = document.getElementById("calendar-grid");
+            const today = new Date();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            document.getElementById("calendar-title").innerText = `📅 ${document.getElementById("month-select").options[month].text} ${year}`;
+            calendarGrid.innerHTML = "";
+
+            if (!projects[year]) projects[year] = {};
+            if (!projects[year][month]) projects[year][month] = {};
+
+            const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
+            weekdays.forEach(day => {
+                const dayElement = document.createElement("div");
+                dayElement.style.fontWeight = "bold";
+                dayElement.innerText = day;
+                calendarGrid.appendChild(dayElement);
+            });
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement("div");
+                dayElement.innerText = day;
+                dayElement.onclick = () => showDetails(day, month, year);
+
+                if (projects[year][month][day]) {
+                    if (new Date(year, month, day) < today) {
+                        dayElement.classList.add("completed");
+                    } else if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                        dayElement.classList.add("ongoing");
+                    } else {
+                        dayElement.classList.add("upcoming");
+                    }
+                }
+
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        function showDetails(day, month, year) {
+            if (projects[year] && projects[year][month] && projects[year][month][day]) {
+                const details = projects[year][month][day];
+                document.getElementById("details").style.display = "block";
+                document.getElementById("project-info").innerText = `🚛 Project on ${day} ${document.getElementById("month-select").options[month].text} ${year}: ${details.project}  
+                    🔍 From: ${details.from}  
+                    📦 To: ${details.to}  
+                    💰 Estimated Profit: ${details.profit}`;
+            } else {
+                alert("No project on this date.");
+            }
+        }
+
+        window.onload = () => {
+            const yearSelect = document.getElementById("year-select");
+            for (let i = 2020; i <= 2030; i++) {
+                let option = document.createElement("option");
+                option.value = i;
+                option.innerText = i;
+                yearSelect.appendChild(option);
+            }
+            yearSelect.value = new Date().getFullYear();
+            generateCalendar();
+        };
+    </script>
+
+</body>
+</html>

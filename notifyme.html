@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notify Me - Truck Mate</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #f5f5dc, #008b85);
+            text-align: center;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: #fff;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+        }
+        h2 {
+            color: #006d6a;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        input {
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #008b85;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #006d6a;
+            transform: scale(1.05);
+        }
+        #alertBox {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .alert {
+            background: #ffcc00;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🚛 Notify Me - Get Real-Time Alerts</h2>
+        <form id="notifyForm">
+            <input type="text" id="startLocation" placeholder="Enter Start Location" required>
+            <input type="text" id="destination" placeholder="Enter Destination" required>
+            <input type="tel" id="emergencyContact" placeholder="Emergency Contact" required>
+            <input type="text" id="numberPlate" placeholder="Vehicle Number" required>
+            <button type="submit">Start Journey</button>
+        </form>
+
+        <h3>📢 Live Alerts</h3>
+        <div id="alertBox"></div>
+    </div>
+
+    <script>
+        document.getElementById('notifyForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let alertBox = document.getElementById("alertBox");
+            alertBox.innerHTML = "<p>🚚 Journey Started! Tracking in progress...</p>";
+
+            let alerts = [
+                "🚧 Road Construction ahead, take an alternative route!",
+                "🚗 Heavy Traffic in the next 5 km, slow down!",
+                "⚠ Accident reported ahead, proceed with caution!",
+                "🛑 Toll gate approaching, prepare for payment."
+            ];
+
+            let i = 0;
+            let alertInterval = setInterval(() => {
+                if (i < alerts.length) {
+                    alertBox.innerHTML += `<div class="alert">${alerts[i]}</div>`;
+                    i++;
+                } else {
+                    clearInterval(alertInterval);
+                }
+            }, 7000); // New alert every 7 seconds
+        });
+    </script>
+
+</body>
+</html>

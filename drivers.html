@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5dc; /* Creme */
+            color: #064e3b; /* Dark Green */
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            background: #d1fae5; /* Light Green */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #047857; /* Teal */
+        }
+
+        h2 {
+            color: #064e3b; /* Dark Green */
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #047857; /* Teal */
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #047857; /* Teal */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #065f46; /* Darker Teal */
+        }
+
+        .driver-details {
+            background: #bbf7d0; /* Soft Green */
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .driver-details div {
+            margin: 5px 0;
+        }
+
+        .highlight {
+            color: #d97706; /* Orange Highlight */
+            font-weight: bold;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #047857;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .back-button:hover {
+            background: #065f46;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back Button -->
+    <a href="index1.html" class="back-button">⬅ Back</a>
+
+    <h1>Driver Search</h1>
+    
+    <div class="container">
+        <h2>Search Driver</h2>
+        <input type="text" id="search" placeholder="Type driver name..." oninput="searchDriver()">
+
+        <div id="driver-info" class="driver-details">
+            <h3>🔎 Driver Details</h3>
+            <div><b>Name:</b> <span id="name"></span></div>
+            <div><b>License:</b> <span id="license"></span></div>
+            <div><b>Experience:</b> <span id="experience"></span> years</div>
+            <div><b>Vehicle:</b> <span id="vehicle"></span></div>
+            <div><b>Phone:</b> <span id="phone"></span></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Add New Driver</h2>
+        <input type="text" id="new-name" placeholder="Driver Name">
+        <input type="text" id="new-license" placeholder="License Number">
+        <input type="number" id="new-experience" placeholder="Years of Experience">
+        <input type="text" id="new-vehicle" placeholder="Vehicle Type">
+        <input type="text" id="new-phone" placeholder="Phone Number">
+        <button onclick="addDriver()">Add Driver</button>
+    </div>
+
+    <script>
+        // 🚛 Driver Database (Preloaded Data)
+        const drivers = [
+            {name: "John Doe", license: "DL12345", experience: 5, vehicle: "Truck", phone: "9876543210"},
+            {name: "Jane Smith", license: "DL67890", experience: 8, vehicle: "Bus", phone: "9123456789"},
+            {name: "Michael Johnson", license: "DL54321", experience: 3, vehicle: "Taxi", phone: "9234567890"},
+            {name: "David Brown", license: "DL11122", experience: 10, vehicle: "Trailer", phone: "9345678901"},
+            {name: "Chris White", license: "DL33344", experience: 7, vehicle: "Van", phone: "9456789012"},
+            {name: "Emma Wilson", license: "DL55566", experience: 2, vehicle: "Mini Truck", phone: "9567890123"},
+            {name: "Robert Taylor", license: "DL77788", experience: 15, vehicle: "Heavy Truck", phone: "9678901234"},
+            {name: "Sophia Martin", license: "DL99900", experience: 6, vehicle: "Pickup Truck", phone: "9789012345"},
+            {name: "Liam Anderson", license: "DL11223", experience: 12, vehicle: "Semi-Trailer", phone: "9890123456"},
+            {name: "Olivia Harris", license: "DL33445", experience: 4, vehicle: "Motorcycle", phone: "9901234567"}
+        ];
+
+        function searchDriver() {
+            const input = document.getElementById("search").value.toLowerCase();
+            const driverInfo = document.getElementById("driver-info");
+
+            // Find driver in the database
+            const driver = drivers.find(d => d.name.toLowerCase().includes(input));
+
+            if (driver) {
+                document.getElementById("name").innerText = driver.name;
+                document.getElementById("license").innerText = driver.license;
+                document.getElementById("experience").innerText = driver.experience;
+                document.getElementById("vehicle").innerText = driver.vehicle;
+                document.getElementById("phone").innerText = driver.phone;
+                driverInfo.style.display = "block"; // Show details
+            } else {
+                driverInfo.style.display = "none"; // Hide if not found
+            }
+        }
+
+        function addDriver() {
+            const name = document.getElementById("new-name").value.trim();
+            const license = document.getElementById("new-license").value.trim();
+            const experience = document.getElementById("new-experience").value.trim();
+            const vehicle = document.getElementById("new-vehicle").value.trim();
+            const phone = document.getElementById("new-phone").value.trim();
+
+            if (!name || !license || !experience || !vehicle || !phone) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            // Add new driver to the list
+            drivers.push({ name, license, experience: Number(experience), vehicle, phone });
+
+            // Clear input fields
+            document.getElementById("new-name").value = "";
+            document.getElementById("new-license").value = "";
+            document.getElementById("new-experience").value = "";
+            document.getElementById("new-vehicle").value = "";
+            document.getElementById("new-phone").value = "";
+
+            alert("Driver added successfully!");
+        }
+    </script>
+
+</body>
+</html>

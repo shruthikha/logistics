@@ -1,0 +1,5 @@
+[
+    {"name": "John Doe", "license": "DL12345", "experience": 5, "vehicle": "Truck"},
+    {"name": "Jane Smith", "license": "DL67890", "experience": 8, "vehicle": "Bus"},
+    {"name": "Michael Johnson", "license": "DL54321", "experience": 3, "vehicle": "Taxi"}
+]

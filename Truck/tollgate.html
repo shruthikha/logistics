@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearby Toll Gates</title>
+    <script>
+        function goBack() {
+            window.location.href = "index.html";
+        }
+    </script>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #005f56, #009688); /* Teal & Green */
+            color: #f5f5dc; /* Crème */
+            text-align: center;
+            padding: 20px;
+            overflow: hidden;
+            animation: fadeIn 1.2s ease-in-out;
+        }
+
+        h2 {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            animation: bounceIn 1.5s ease-in-out;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.15); /* Glassmorphism effect */
+            padding: 25px;
+            border-radius: 15px;
+            width: 50%;
+            margin: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            animation: slideIn 1s ease-in-out;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .container:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h3 {
+            font-size: 22px;
+            border-bottom: 3px solid #ff9800; /* Warm accent */
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            margin: 6px 0;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        li:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Floating Navigation Button */
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: #ff9800; /* Warm accent */
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #cc7700;
+            transform: scale(1.1);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>📍 Fetching your location...</h2>
+    <div id="places"></div>
+
+    <!-- Floating Navigation Button -->
+    <button class="nav-btn" onclick="goBack()">🏠 Home</button>
+
+    <script>
+        async function getTollGates(lat, lon) {
+            const query = `[out:json]; node["barrier"="toll_booth"](around:5000, ${lat}, ${lon}); out body;`;
+            const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (!data.elements || data.elements.length === 0) {
+                    document.getElementById("places").innerHTML = "⚠️ No toll gates found nearby.";
+                    return;
+                }
+                getUserLocation(lat, lon, data.elements);
+            } catch (error) {
+                console.error("Error fetching toll gates:", error);
+                document.getElementById("places").innerHTML = "⚠️ Unable to fetch toll gate data.";
+            }
+        }
+
+        async function getUserLocation(lat, lon, tollGates) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayTollGates(data.display_name || "Unknown Location", tollGates, lat, lon);
+            } catch (error) {
+                console.error("Error getting location:", error);
+                displayTollGates("Unknown Location", tollGates, lat, lon);
+            }
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return (R * c).toFixed(2);
+        }
+
+        function displayTollGates(location, tollGates, userLat, userLon) {
+            let tollList = tollGates.map(t => {
+                return `<li>🚧 ${t.tags.name || "Unnamed"} - ${calculateDistance(userLat, userLon, t.lat, t.lon)} km</li>`;
+            }).join("") || "<li>No toll gates found</li>";
+
+            document.getElementById("places").innerHTML = `
+                <h2>📍 Your Location: ${location}</h2>
+                <div class="container">
+                    <h3>🚧 Nearby Toll Gates</h3>
+                    <ul>${tollList}</ul>
+                </div>
+            `;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            position => getTollGates(position.coords.latitude, position.coords.longitude),
+            () => document.getElementById("places").innerHTML = "⚠️ Location access denied!"
+        );
+    </script>
+
+</body>
+</html>

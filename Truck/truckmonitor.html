@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Monitoring System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #F5F5DC; /* Cream color */
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+         /* Back Button */
+         .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #008080; /* Teal */
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #ff6600; /* Orange */
+            transform: scale(1.05);
+        }
+   
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #ffffff; /* White background */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+        h1, h2 {
+            color: #008080; /* Teal */
+        }
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        input, select, button {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 2px solid #008080;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f8f8f8;
+        }
+        button {
+            cursor: pointer;
+            background: #008080;
+            color: white;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #006666;
+            transform: scale(1.05);
+        }
+        #speedResult {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #006666;
+        }
+        .speed-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #E0F2F1; /* Light Teal */
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .gauge {
+            width: 100%;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .gauge-fill {
+            height: 100%;
+            width: 0;
+            background: #008080;
+            transition: width 0.5s ease-in-out;
+        }
+        #speedAlert {
+            display: none;
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+            animation: blink 1s infinite alternate;
+        }
+        @keyframes blink {
+            from { opacity: 1; }
+            to { opacity: 0.5; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="back-button" onclick="window.location.href='index.html'">⬅ Back</button>
+
+    <div class="container">
+        <h1>Speed Monitoring System</h1>
+        
+        <label for="loadWeight">Enter Load Weight (tons):</label>
+        <input type="number" id="loadWeight" placeholder="Enter weight...">
+        
+        <label for="roadType">Select Road Type:</label>
+        <select id="roadType">
+            <option value="highway">Highway</option>
+            <option value="local">Local</option>
+            <option value="residential">Residential</option>
+        </select>
+        
+        <button id="calculateBtn">Calculate Maximum Speed</button>
+        <div id="speedResult"></div>
+        
+        <div class="speed-container">
+            <h2>Live Speed Monitoring</h2>
+            <button id="startMonitoringBtn">Start Monitoring</button>
+            <button id="stopMonitoringBtn" style="display: none;">Stop Monitoring</button>
+            
+            <div class="gauge">
+                <div id="speedGauge" class="gauge-fill"></div>
+            </div>
+            <h2>Current Speed: <span id="currentSpeed">0</span> km/h</h2>
+            <div id="speedAlert">⚠️ Slow Down! You are exceeding the speed limit! ⚠️</div>
+        </div>
+    </div>
+
+    <script>
+        let maxSpeed = 0;
+        let currentSpeed = 0;
+        let watchId = null;
+
+        const loadWeightInput = document.getElementById('loadWeight');
+        const roadTypeSelect = document.getElementById('roadType');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const speedResult = document.getElementById('speedResult');
+        const startMonitoringBtn = document.getElementById('startMonitoringBtn');
+        const stopMonitoringBtn = document.getElementById('stopMonitoringBtn');
+        const currentSpeedElement = document.getElementById('currentSpeed');
+        const speedGauge = document.getElementById('speedGauge');
+        const speedAlert = document.getElementById('speedAlert');
+
+        function calculateMaxSpeed(loadWeight, roadType) {
+            const baseSpeeds = { highway: 100, local: 80, residential: 50 };
+            let reduction = 1 - (Math.min(loadWeight, 20) / 40);
+            return Math.max(Math.round(baseSpeeds[roadType] * reduction), 20);
+        }
+
+        calculateBtn.addEventListener('click', () => {
+            const loadWeight = parseFloat(loadWeightInput.value);
+            if (isNaN(loadWeight) || loadWeight < 0) return alert('Enter a valid load weight');
+            maxSpeed = calculateMaxSpeed(loadWeight, roadTypeSelect.value);
+            speedResult.innerHTML = `<p><strong>Max Speed:</strong> ${maxSpeed} km/h</p>`;
+        });
+
+        function startMonitoring() {
+            if (!maxSpeed) return alert('Calculate the max speed first!');
+            if (!navigator.geolocation) return alert('Geolocation is not supported');
+            
+            startMonitoringBtn.style.display = 'none';
+            stopMonitoringBtn.style.display = 'inline-block';
+
+            watchId = navigator.geolocation.watchPosition(updateSpeed, () => {
+                alert("GPS Error. Try again.");
+            }, { enableHighAccuracy: true, timeout: 5000 });
+        }
+
+        function stopMonitoring() {
+            navigator.geolocation.clearWatch(watchId);
+            startMonitoringBtn.style.display = 'inline-block';
+            stopMonitoringBtn.style.display = 'none';
+            speedAlert.style.display = 'none';
+        }
+
+        function updateSpeed(position) {
+            currentSpeed = Math.round(position.coords.speed * 3.6 || 0);
+            currentSpeedElement.textContent = currentSpeed;
+            speedGauge.style.width = `${Math.min((currentSpeed / maxSpeed) * 100, 100)}%`;
+            speedAlert.style.display = currentSpeed > maxSpeed ? 'block' : 'none';
+        }
+
+        startMonitoringBtn.addEventListener('click', startMonitoring);
+        stopMonitoringBtn.addEventListener('click', stopMonitoring);
+    </script>
+
+</body>
+</html>

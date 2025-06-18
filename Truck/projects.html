@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background: #1e1e1e;
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+        }
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+        .card {
+            background: #1e1e1e;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        button {
+            background: #00b5ad;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #008c8a;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>📅 Calendar</h2>
+        <div class="card">
+            <p><strong>Ongoing Project:</strong> Texas → New York</p>
+            <p><strong>Client:</strong> ABC Corp</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1>📦 Projects</h1>
+        <div class="card">
+            <h3>🚚 Texas → New York</h3>
+            <p>Client: ABC Corp | Truck: #TX98</p>
+            <p>Status: In Progress</p>
+        </div>
+        <div class="card">
+            <h3>🚚 Florida → California</h3>
+            <p>Client: XYZ Corp | Truck: #FL77</p>
+            <p>Status: Upcoming</p>
+        </div>
+        <button onclick="window.location.href='index.html'">⬅ Back to Dashboard</button>
+    </div>
+
+</body>
+</html>

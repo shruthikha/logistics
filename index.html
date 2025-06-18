@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imp-Vise</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f5f5dc;
+            color: #004d40;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: #008080;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-container img {
+            width: 50px;
+            height: auto;
+            margin-right: 15px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f5f5dc;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin: 0 15px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #f5f5dc;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #2ecc71;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 128, 128, 0.8), rgba(46, 204, 113, 0.8));
+            text-align: center;
+            color: white;
+            padding: 120px 20px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: #2ecc71;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background: #27ae60;
+            transform: scale(1.05);
+        }
+
+        /* Feature Section */
+        .features {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 50px 20px;
+        }
+
+        .feature-card {
+            background: #f5f5dc;
+            padding: 20px;
+            width: 280px;
+            margin: 15px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-card img {
+            width: 80px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #008080;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-container">
+            <img src="photos/logo.png" alt="Imp-Vise Logo">
+            <div class="logo">Imp-Vise</div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="login.html">Home</a></li>
+            <li><a href="features.html">Features</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="admin_login.html">Login</a></li>
+        </ul>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Welcome to Imp-Vise</h1>
+        <p>Your ultimate companion for a smooth trucking journey!</p>
+        <button class="btn" onclick="location.href='pricing.html'">Get Started</button>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="feature-card" onclick="location.href='airquality.html'">
+            <img src="photos/airquality.jpg" alt="Air Quality">
+            <h3>Air Quality</h3>
+            <p>Monitor air quality for a safe trip.</p>
+        </div>
+
+        <div class="feature-card" onclick="location.href='fuel.html'">
+            <img src="photos/fuel.jpg" alt="Fuel Stations">
+            <h3>Fuel Stations</h3>
+            <p>Find the nearest fuel stations quickly.</p>
+        </div>
+
+        <div class="feature-card" onclick="location.href='hospital.html'">
+            <img src="photos/hospitals.jpg" alt="Hospitals">
+            <h3>Hospitals</h3>
+            <p>Locate emergency medical assistance.</p>
+        </div>
+
+        <div class="feature-card" onclick="location.href='tollgate.html'">
+            <img src="photos/toll.jpg" alt="Toll Gates">
+            <h3>Toll Gates</h3>
+            <p>Plan your route with toll gate info.</p>
+        </div>
+
+        <div class="feature-card" onclick="location.href='truckmonitor.html'">
+            <img src="photos/monitor.jpg" alt="Truck Monitor">
+            <h3>Truck Monitor</h3>
+            <p>Keep track of truck performance.</p>
+        </div>
+
+        <div class="feature-card" onclick="location.href='notifyme.html'">
+            <img src="photos/notify.jpg" alt="Notify Me">
+            <h3>Notify Me</h3>
+            <p>Get alerts for important updates.</p>
+        </div>
+        <div class="feature-card" onclick="location.href='sos.html'">
+            <img src="photos/sos.jpg" alt="SOS">
+            <h3>SOS</h3>
+            <p>Emergency Assistance</p>
+        </div>
+    </section>
+
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #f5f5dc, #008b85);
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px #ae0c0c4d;
+        }
+
+        h2 {
+            color: #008b85;
+        }
+
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #e0e0c7;
+        }
+
+        .summary div {
+            font-size: 18px;
+            font-weight: bold;
+            color: #006d6a;
+        }
+
+        input[type="file"] {
+            margin-top: 15px;
+            background: #008b85;
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        input[type="file"]:hover {
+            background: #006d6a;
+        }
+
+        #history {
+            margin-top: 20px;
+            text-align: left;
+            background: #e0e0c7;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        #history h3 {
+            color: #ff6600;
+        }
+
+        .entry {
+            background: white;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: #008b85;
+            color: white;
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .back-button:hover {
+            background: #006d6a;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <button class="back-button" onclick="goBack()">⬅ Back</button>
+
+    <h1 style="color: #006d6a;">📊 Financial Overview</h1>
+
+    <!-- File Upload Feature -->
+    <input type="file" id="importFile" accept=".json" multiple onchange="importFinancialData(event)">
+
+    <div class="container">
+        <h2>Summary</h2>
+        <div class="summary">
+            <div>Total Revenue: <b id="total-revenue">₹0</b></div>
+        </div>
+        <div class="summary">
+            <div>Total Cost: <b id="total-cost">₹0</b></div>
+        </div>
+        <div class="summary">
+            <div>Total Profit: <b id="total-profit">₹0</b></div>
+        </div>
+        <div class="summary">
+            <div>Future Earnings: <b id="future-earnings">₹0</b></div>
+        </div>
+        <div class="summary">
+            <div>Estimated Cost: <b id="estimated-cost">₹0</b></div>
+        </div>
+    </div>
+
+    <div class="container" id="history">
+        <h3> Project History</h3>
+        <div id="history-list"></div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = "index1.html";
+        }
+
+        let financialData = JSON.parse(localStorage.getItem("financialData")) || [];
+
+        function updateFinancialOverview() {
+            let totalRevenue = 0;
+            let totalCost = 0;
+            let futureEarnings = 0;
+            let estimatedCost = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today's date
+
+            const historyList = document.getElementById("history-list");
+            historyList.innerHTML = "";
+
+            financialData.forEach(entry => {
+                const projectDate = new Date(entry.date);
+
+                totalRevenue += entry.revenue;
+                totalCost += entry.cost;
+
+                if (projectDate >= today) { // Check for future projects
+                    futureEarnings += entry.revenue - entry.cost;
+                    estimatedCost += entry.cost * 1.1; // Estimated Cost (10% buffer)
+                }
+
+                // Display past projects
+                const entryDiv = document.createElement("div");
+                entryDiv.classList.add("entry");
+                entryDiv.innerHTML = `📅 <b>${entry.date}</b> - Revenue: ₹${entry.revenue.toLocaleString()}, Cost: ₹${entry.cost.toLocaleString()}`;
+                historyList.appendChild(entryDiv);
+            });
+
+            document.getElementById("total-revenue").innerText = `₹${totalRevenue.toLocaleString()}`;
+            document.getElementById("total-cost").innerText = `₹${totalCost.toLocaleString()}`;
+            document.getElementById("total-profit").innerText = `₹${(totalRevenue - totalCost).toLocaleString()}`;
+            document.getElementById("future-earnings").innerText = `₹${futureEarnings.toLocaleString()}`;
+            document.getElementById("estimated-cost").innerText = `₹${estimatedCost.toLocaleString()}`;
+        }
+
+        function importFinancialData(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const newData = JSON.parse(e.target.result);
+                        financialData = [...financialData, ...newData];
+
+                        localStorage.setItem("financialData", JSON.stringify(financialData));
+
+                        updateFinancialOverview();
+                        alert(`📊 ${file.name} imported successfully!`);
+                    } catch (error) {
+                        alert("❌ Error reading file. Make sure it's a valid JSON.");
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        window.onload = updateFinancialOverview;
+    </script>
+
+</body>
+</html>

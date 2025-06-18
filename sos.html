@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOS Emergency Call</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #fff;
+            transition: background 0.3s;
+        }
+        .sos-btn {
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background-color: red;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 50px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .sos-btn:active {
+            transform: scale(0.95);
+        }
+        .flash {
+            animation: flashEffect 0.5s infinite alternate;
+        }
+        @keyframes flashEffect {
+            0% { background-color: white; }
+            100% { background-color: red; }
+        }
+        .call-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            color: white;
+            text-align: center;
+            padding-top: 100px;
+        }
+        .calling {
+            font-size: 20px;
+            color: lightgray;
+            margin-top: 10px;
+        }
+        .ring-animation {
+            animation: ring 1s infinite alternate;
+        }
+        @keyframes ring {
+            0% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+        .end-call {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SOS Emergency Feature</h1>
+    <button class="sos-btn" onclick="triggerSOS()">SEND SOS</button>
+
+    <audio id="sosAlarm" loop>
+        <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Fake Call Screen -->
+    <div id="callScreen" class="call-screen">
+        <h2>Calling Emergency 🚨</h2>
+        <h1>100</h1>
+        <p class="calling ring-animation">Ringing...</p>
+        <button class="end-call" onclick="endCall()">End Call</button>
+    </div>
+
+    <script>
+        let sosActive = false;
+        let alarmSound = document.getElementById("sosAlarm");
+
+        function triggerSOS() {
+            if (sosActive) return;
+            sosActive = true;
+            
+            document.body.classList.add("flash");
+            alert("🚨 SOS Activated! Emergency help is being alerted.");
+            
+            // Play alarm sound
+            alarmSound.play();
+
+            // Get user location (if permission is granted)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    let lat = position.coords.latitude;
+                    let lon = position.coords.longitude;
+                    console.log(`User Location: Lat ${lat}, Lon ${lon}`);
+                    alert(`📍 Your Location:\nLatitude: ${lat}\nLongitude: ${lon}`);
+                });
+            } else {
+                alert("⚠️ Geolocation not supported on this browser.");
+            }
+
+            // 🚀 Fake Call Simulation
+            setTimeout(() => {
+                document.getElementById("callScreen").style.display = "block";
+            }, 5000); // Show fake call screen after 5 seconds
+        }
+
+        function endCall() {
+            document.getElementById("callScreen").style.display = "none";
+            document.body.classList.remove("flash");
+            alarmSound.pause();
+            alarmSound.currentTime = 0; // Reset sound
+            sosActive = false;
+            alert("📞 Call Ended.");
+        }
+    </script>
+
+</body>
+</html>
